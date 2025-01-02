@@ -23,7 +23,19 @@ import requests
 from PIL import Image
 from io import BytesIO
 import re
+import torchvision.transforms as transforms
 
+def tensor_to_pil_images(image_tensors):
+    """
+    Convert a batched tensor of images into a list of PIL images.
+    Args:
+        image_tensors (torch.Tensor): A tensor containing stacked image data (B, C, H, W).
+    Returns:
+        list: List of PIL images.
+    """
+    to_pil = transforms.ToPILImage()
+    pil_images = [to_pil(tensor) for tensor in image_tensors]  # Convert each tensor to PIL image
+    return pil_images
 
 def image_parser(args):
     out = args.image_file.split(args.sep)
@@ -98,7 +110,7 @@ def eval_model(args):
 
     #image_files = image_parser(args)
     #images = load_images(image_files)
-    images = args.image_file
+    images = tensor_to_pil_images(args.image_file)
     image_sizes = [x.size for x in images]
     images_tensor = process_images(
         images,
